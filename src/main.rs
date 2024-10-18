@@ -2,13 +2,15 @@ use std::thread;
 
 use rdev::{listen, EventType};
 
-use iced::futures::channel::mpsc;
+// use iced::futures::channel::mpsc;
 use iced::futures::sink::SinkExt;
-use iced::futures::stream::StreamExt;
+// use iced::futures::stream::StreamExt;
 use iced::futures::Stream;
 use iced::stream;
 use iced::widget::{column, text};
 use iced::{Element, Subscription, Task};
+// use std::sync::mpsc
+use tokio::sync::mpsc;
 
 struct KeyGraph {
     last_key: String,
@@ -47,10 +49,12 @@ impl KeyGraph {
 }
 fn some_worker() -> impl Stream<Item = String> {
     stream::channel(100, |mut output| async move {
-        let (mut tx, mut rx) = mpsc::channel(100);
+        let (tx, mut rx) = mpsc::channel(100);
 
         thread::spawn(move || {
+            println!("{:?}", "0");
             listen(move |event| {
+                println!("{:?}", "0.1");
                 if let EventType::KeyPress(key) = event.event_type {
                     let _ = tx.send(format!("{:?}", key));
                 }
@@ -59,18 +63,15 @@ fn some_worker() -> impl Stream<Item = String> {
         });
 
         loop {
-            let input = rx.select_next_some().await;
-            let _ = output.send(input).await;
+            println!("{:?}", "1");
+            let input = rx.recv().await;
+            println!("{:?}", "2");
+            let _ = output.send(input.unwrap()).await;
+            println!("{:?}", "3");
         }
     })
 }
 
-fn subscription(_state: &KeyGraph) -> Subscription<Message> {
-    Subscription::run(some_worker).map(|key_str| Message::KeyPressed(key_str))
-}
-
 pub fn main() -> iced::Result {
-    iced::application("KeyGraph", KeyGraph::update, KeyGraph::view)
-        .subscription(subscription)
-        .run_with(KeyGraph::new)
+    iced::application("KeyGraph", KeyGraph::update, KeyGraph::view).run_with(KeyGraph::new)
 }
