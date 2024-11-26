@@ -47,6 +47,7 @@ impl KeyGraph {
         .into()
     }
 }
+
 fn some_worker() -> impl Stream<Item = String> {
     stream::channel(100, |mut output| async move {
         let (tx, mut rx) = mpsc::channel(100);

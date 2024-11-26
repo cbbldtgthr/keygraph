@@ -1,5 +1,3 @@
-
-
 ```sh
 cargo run --bin keyserver
 npx serve

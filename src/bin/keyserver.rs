@@ -8,6 +8,12 @@ use std::{
 };
 use tungstenite::accept;
 
+#[derive(Serialize, Deserialize, Debug)]
+struct KeyMsg {
+    pub key: String,
+    pub name: String,
+}
+
 pub fn main() {
     let (tx, rx) = std::sync::mpsc::channel();
 
@@ -32,12 +38,6 @@ pub fn main() {
     }
 
     websocket_thread.join().unwrap();
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct KeyMsg {
-    pub key: String,
-    pub name: String,
 }
 
 fn run_websocket_server(
