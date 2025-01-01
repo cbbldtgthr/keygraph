@@ -6,5 +6,6 @@ cargo run --bin keyserver
 npx serve
 
 # Open a browser in headless mode to show the app
-open -na "Brave Browser" --args  --incognito --app="http://localhost:3000/app/index.html"
+cd app
+open -na "Brave Browser" --args  --incognito --app="http://localhost:3000/index.html"
 ```
